@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A small browser-based tool for constructing and testing webhook requests."
+    />
+    <title>Webhook Sender</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!--
+      THESIS: A webhook request behaves like a shipment: address it, declare its contents, dispatch it, and inspect the receipt. This refuses the generic API-dashboard layout.
+      OWN-WORLD: Paper-white work surface, ink-blue structure, signal-orange actions, and compact manifest labels.
+      STORY: Configure a request on the left, dispatch it, then read its delivery receipt on the right.
+      FIRST VIEWPORT: A masthead spans the page above a two-column request-and-response workbench; the send action closes the request column.
+      FORM: Shipping manifest station, third grounded direction, seed 727ea977.
+      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+    -->
+    <main class="app-shell">
+      <header class="masthead">
+        <div>
+          <p class="product-mark">WH / SEND</p>
+          <h1>Webhook Sender</h1>
+          <p class="intro">
+            Build a JSON payload, dispatch it to an endpoint, and inspect the delivery receipt.
+          </p>
+        </div>
+        <div class="runtime-badge" aria-label="Runtime: browser direct">
+          <span class="runtime-dot" aria-hidden="true"></span>
+          Browser direct
+        </div>
+      </header>
+
+      <div class="workbench">
+        <section class="request-panel" aria-labelledby="request-heading">
+          <div class="section-heading">
+            <div>
+              <h2 id="request-heading">Request manifest</h2>
+              <p>Destination and contents</p>
+            </div>
+            <span class="section-code">OUTBOUND</span>
+          </div>
+
+          <form id="webhook-form" novalidate>
+            <div class="destination-grid">
+              <div class="field-group field-group--url">
+                <label for="webhook-url">Webhook URL</label>
+                <input
+                  id="webhook-url"
+                  name="webhookUrl"
+                  type="url"
+                  inputmode="url"
+                  autocomplete="url"
+                  placeholder="https://hook.example.com/your-endpoint"
+                  required
+                />
+              </div>
+
+              <div class="field-group">
+                <label for="http-method">HTTP method</label>
+                <select id="http-method" name="httpMethod">
+                  <option value="POST" selected>POST</option>
+                  <option value="PUT">PUT</option>
+                  <option value="PATCH">PATCH</option>
+                  <option value="DELETE">DELETE</option>
+                  <option value="GET">GET</option>
+                </select>
+              </div>
+            </div>
+
+            <p id="form-error" class="form-error" role="alert" hidden></p>
+
+            <fieldset id="payload-fieldset" class="payload-fieldset">
+              <legend>Payload</legend>
+              <p id="payload-help" class="field-help">
+                Values are sent as strings in an <code>application/json</code> request body.
+              </p>
+
+              <div class="payload-labels" aria-hidden="true">
+                <span>Field</span>
+                <span>Value</span>
+                <span></span>
+              </div>
+
+              <div id="payload-fields" class="payload-fields"></div>
+
+              <button id="add-field" class="secondary-button" type="button">
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M8 3v10M3 8h10" />
+                </svg>
+                Add field
+              </button>
+            </fieldset>
+
+            <div class="dispatch-row">
+              <p id="method-note" class="method-note" aria-live="polite">
+                A JSON request body will be included.
+              </p>
+              <button id="send-button" class="primary-button" type="submit">
+                <span class="button-label">Send webhook</span>
+                <span class="button-loader" aria-hidden="true"></span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="response-panel" aria-labelledby="response-heading">
+          <div class="section-heading section-heading--response">
+            <div>
+              <h2 id="response-heading">Delivery receipt</h2>
+              <p>Latest response</p>
+            </div>
+            <span id="response-state" class="response-state response-state--idle">READY</span>
+          </div>
+
+          <div id="response-content" class="response-content" aria-live="polite" aria-busy="false">
+            <div id="empty-response" class="empty-response">
+              <svg viewBox="0 0 48 48" aria-hidden="true">
+                <path d="M8 14h32v24H8zM14 8h20v6H14zM15 22h18M15 29h12" />
+              </svg>
+              <h3>No receipt yet</h3>
+              <p>Send a request to see its status, duration, and response body here.</p>
+            </div>
+
+            <div id="response-result" class="response-result" hidden>
+              <dl class="response-meta">
+                <div>
+                  <dt>Status</dt>
+                  <dd id="response-status">—</dd>
+                </div>
+                <div>
+                  <dt>Duration</dt>
+                  <dd id="response-duration">—</dd>
+                </div>
+              </dl>
+
+              <div class="body-heading">
+                <h3>Response body</h3>
+                <span id="response-format">TEXT</span>
+              </div>
+              <pre id="response-body" tabindex="0"></pre>
+            </div>
+          </div>
+
+          <aside class="cors-note">
+            <strong>Browser boundary</strong>
+            <span>Targets must allow requests from this page's origin. A CORS block appears as a network error.</span>
+          </aside>
+        </section>
+      </div>
+    </main>
+
+    <template id="payload-row-template">
+      <div class="payload-row">
+        <label class="sr-only payload-key-label">Payload field</label>
+        <input class="payload-key" type="text" autocomplete="off" placeholder="Field name" />
+        <label class="sr-only payload-value-label">Payload value</label>
+        <input class="payload-value" type="text" autocomplete="off" placeholder="Value" />
+        <button class="remove-field" type="button">Remove</button>
+      </div>
+    </template>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook Sender</title>
+</head>
+<body>
+    
+</body>
+</html>
